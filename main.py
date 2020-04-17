@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 import random
 import secrets
+import operator
 
 app = Flask(__name__)
 
@@ -38,7 +39,6 @@ def login():
             if not cur.fetchone():
                 cur.execute("INSERT INTO Users (Username)" +
                             "VALUES (?);", (username, ))
-                print("hi")
                 mcq_db.commit()
                 mcq_db.close()
             return render_template('confirm.html', new_user=True, u_name=username)
@@ -51,12 +51,10 @@ def login():
 def mcq():
     question_username = request.form.get('question_username', None)
     if not question_username:  # username field not present? send to main page
-        print('no')
         return redirect(url_for('main'))
     question = request.form.get('question', None)
     answer = request.form.get('answer', None)
     if not question:  # sent from confirm
-        print('huh')
         mcq_db = sqlite3.connect('mcq.db')
         cur = mcq_db.cursor()
         # get number of questions user has answered correctly
@@ -67,7 +65,7 @@ def mcq():
                        AND Questions.QuestionID is not null;""", (question_username,))
         answered_questions = cur.fetchone()[0]
         if answered_questions == number_of_questions:
-            return render_template('finish.html', 
+            return render_template('finish.html',
                                    u_name=question_username,
                                    number_of_questions=number_of_questions)
         # get which question is not answered correctly
@@ -96,7 +94,6 @@ def mcq():
     elif not answer:  # answer somehow not in form data?
         mcq_db = sqlite3.connect('mcq.db')
         cur = mcq_db.cursor()
-        print(question)
         cur.execute("SELECT Answer, WrongAnswer1, WrongAnswer2, WrongAnswer3, QuestionToAsk " +
                     "FROM Questions WHERE QuestionID = ?;", (question,))
         options = list(cur.fetchone())
@@ -188,6 +185,39 @@ def mcq():
                                                option2=options[1], option3=options[2],
                                                option4=options[3], u_name=question_username,
                                                option_chosen=answer)
+
+
+@app.route('/leaderboard', methods=['GET', 'POST'])
+def leaderboard():
+    mcq_db = sqlite3.connect('mcq.db')
+    cur = mcq_db.cursor()
+    cur.execute("""select Users.Username, SUM(Attempt.AttemptsCount) from Attempt 
+                   LEFT JOIN Questions 
+                   ON Attempt.QuestionID = Questions.QuestionID AND 
+                   Attempt.Response != Questions.Answer
+                   LEFT JOIN Users 
+                   ON Attempt.UserID = Users.UserID
+                   WHERE Questions.QuestionID is not null
+                   GROUP BY Attempt.UserID
+                   ORDER BY Users.Username;""")
+    wrong_attempts = cur.fetchall()
+    cur.execute("""select Users.Username, SUM(Attempt.AttemptsCount) from Attempt 
+                   LEFT JOIN Questions 
+                   ON Attempt.QuestionID = Questions.QuestionID AND 
+                   Attempt.Response = Questions.Answer 
+                   LEFT JOIN Users 
+                   ON Attempt.UserID = Users.UserID 
+                   WHERE Questions.QuestionID is not null 
+                   GROUP BY Attempt.UserID
+                   ORDER BY Users.Username;""")
+    answered_questions = cur.fetchall()
+    mcq_db.close()
+    ranking = []
+    for i in range(len(answered_questions)):
+        ranking.append((answered_questions[i][1], wrong_attempts[i][1], answered_questions[i][0]))
+    ranking = sorted(sorted(ranking, key=operator.itemgetter(1, 2)), key=operator.itemgetter(0), reverse=True)
+    username = request.form.get('question_username', None)
+    return render_template('leaderboard.html', ranking=ranking, username=username)
 
 
 if __name__ == "__main__":
