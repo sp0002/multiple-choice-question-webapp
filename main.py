@@ -7,7 +7,7 @@ import operator
 app = Flask(__name__)
 
 # get some values and cache it
-questions_db = sqlite3.connect('mcq.db')
+questions_db = sqlite3.connect('mysite/mcq.db')
 cursor = questions_db.cursor()
 cursor.execute("SELECT COUNT(*) FROM Questions;")
 number_of_questions = cursor.fetchone()[0]
@@ -27,7 +27,7 @@ def login():
     if not username:  # not sent from main page
         return redirect(url_for('main'))
     else:  # typed a username
-        mcq_db = sqlite3.connect('mcq.db')
+        mcq_db = sqlite3.connect('mysite/mcq.db')
         cur = mcq_db.cursor()
         cur.execute("SELECT 1 FROM Attempt " +
                     "WHERE UserID = " +
@@ -55,7 +55,7 @@ def mcq():
     question = request.form.get('question', None)
     answer = request.form.get('answer', None)
     if not question:  # sent from confirm
-        mcq_db = sqlite3.connect('mcq.db')
+        mcq_db = sqlite3.connect('mysite/mcq.db')
         cur = mcq_db.cursor()
         # get number of questions user has answered correctly
         cur.execute("""select COUNT(*) from Attempt LEFT JOIN Questions 
@@ -65,6 +65,7 @@ def mcq():
                        AND Questions.QuestionID is not null;""", (question_username,))
         answered_questions = cur.fetchone()[0]
         if answered_questions == number_of_questions:
+            mcq_db.close()
             return render_template('finish.html',
                                    u_name=question_username,
                                    number_of_questions=number_of_questions)
@@ -87,109 +88,109 @@ def mcq():
         options.pop()
         random.seed(question_username)
         random.shuffle(options)
+        mcq_db.close()
         return render_template("question.html", question=question,
                                question_text=question_text, option1=options[0],
                                option2=options[1], option3=options[2],
                                option4=options[3], u_name=question_username)
     elif not answer:  # answer somehow not in form data?
-        mcq_db = sqlite3.connect('mcq.db')
+        mcq_db = sqlite3.connect('mysite/mcq.db')
         cur = mcq_db.cursor()
         cur.execute("SELECT Answer, WrongAnswer1, WrongAnswer2, WrongAnswer3, QuestionToAsk " +
                     "FROM Questions WHERE QuestionID = ?;", (question,))
         options = list(cur.fetchone())
-        if answer not in options:  # bogus answer? ask question again
-            question_text = options[-1]
-            options.pop()
-            random.seed(question_username)
-            random.shuffle(options)
-            return render_template("question.html", question=question,
-                                   question_text=question_text, option1=options[0],
-                                   option2=options[1], option3=options[2],
-                                   option4=options[3], error=True,
-                                   u_name=question_username)
-    else:
+        question_text = options[-1]
+        options.pop()
+        random.seed(question_username)
+        random.shuffle(options)
+        mcq_db.close()
+        return render_template("question.html", question=question,
+                               question_text=question_text, option1=options[0],
+                               option2=options[1], option3=options[2],
+                               option4=options[3], error=True,
+                               u_name=question_username)
+    else:  # question and answer present
         try:
-            question = int(question)  # questionid?
+            question = int(question)  # questionid is integer?
         except ValueError:
             return redirect(url_for('main'))  # question number not found? serve index.html
         else:
-            if question > number_of_questions:  # huh? questionid more than the number of questions?
-                return redirect(url_for('main'))
-            else:  # answering question
-                mcq_db = sqlite3.connect('mcq.db')
-                cur = mcq_db.cursor()
-                cur.execute("SELECT Answer, WrongAnswer1, WrongAnswer2, WrongAnswer3, QuestionToAsk " +
-                            "FROM Questions WHERE QuestionID = ?;", (question,))
-                options = list(cur.fetchone())
-                if answer not in options:  # bogus answer? ask question again
-                    question_text = options[-1]
-                    options.pop()
-                    random.seed(question_username)
-                    random.shuffle(options)
-                    return render_template("question.html", question=question,
-                                           question_text=question_text, option1=options[0],
-                                           option2=options[1], option3=options[2],
-                                           option4=options[3], error=True,
-                                           u_name=question_username)
-                else:  # user answered question
-                    if answer != options[0]:  # answer not correct?
-                        cur.execute("SELECT 1 FROM Attempt " +
-                                    "WHERE UserID = " +
-                                    "(SELECT UserID FROM Users WHERE Username = ?) " +
-                                    "AND QuestionID = ? " +
-                                    "AND Response = ?;",
-                                    (question_username, question, answer))
-                        if not cur.fetchone():  # has the user answered the option before?
+            mcq_db = sqlite3.connect('mysite/mcq.db')
+            cur = mcq_db.cursor()
+            cur.execute("SELECT Answer, WrongAnswer1, WrongAnswer2, WrongAnswer3, QuestionToAsk " +
+                        "FROM Questions WHERE QuestionID = ?;", (question,))
+            options = list(cur.fetchone())
+            question_text = options[-1]
+            correct_answer = options[0]
+            options.pop()
+            random.seed(question_username)
+            random.shuffle(options)
+            if answer not in options:  # bogus answer? ask question again
+                mcq_db.close()
+                return render_template("question.html", question=question,
+                                       question_text=question_text, option1=options[0],
+                                       option2=options[1], option3=options[2],
+                                       option4=options[3], error=True,
+                                       u_name=question_username)
+            else:
+                if question > number_of_questions:  # huh? questionid more than the number of questions?
+                    mcq_db.close()
+                    return redirect(url_for('main'))
+                else:  # answering question
+                    if answer not in options:  # bogus answer? ask question again
+                        mcq_db.close()
+                        return render_template("question.html", question=question,
+                                               question_text=question_text, option1=options[0],
+                                               option2=options[1], option3=options[2],
+                                               option4=options[3], error=True,
+                                               u_name=question_username)
+                    else:  # user answered question
+                        if answer != correct_answer:  # answer not correct?
+                            cur.execute("SELECT 1 FROM Attempt " +
+                                        "WHERE UserID = " +
+                                        "(SELECT UserID FROM Users WHERE Username = ?) " +
+                                        "AND QuestionID = ? " +
+                                        "AND Response = ?;",
+                                        (question_username, question, answer))
+                            if not cur.fetchone():  # has the user answered the option before?
+                                cur.execute("INSERT INTO Attempt (UserID, QuestionID, Response, AttemptsCount)" +
+                                            "VALUES ((SELECT UserID FROM Users WHERE Username = ?), ?, ?, ?);",
+                                            (question_username, question, answer, 1))
+                                mcq_db.commit()
+                                mcq_db.close()
+                                return render_template("incorrect.html", question=question,
+                                                       question_text=question_text, option1=options[0],
+                                                       option2=options[1], option3=options[2],
+                                                       option4=options[3], u_name=question_username)
+                            else:  # user answered the option before
+                                cur.execute("UPDATE Attempt " +
+                                            "SET AttemptsCount = (AttemptsCount + 1)" +
+                                            "WHERE UserID = (SELECT UserID FROM Users WHERE Username = ?) " +
+                                            "AND QuestionID = ? " +
+                                            "AND Response = ?;",
+                                            (question_username, question, answer))
+                                mcq_db.commit()
+                                mcq_db.close()
+                                return render_template("incorrect.html", question=question,
+                                                       question_text=question_text, option1=options[0],
+                                                       option2=options[1], option3=options[2],
+                                                       option4=options[3], u_name=question_username)
+                        else:  # ding ding ding!
                             cur.execute("INSERT INTO Attempt (UserID, QuestionID, Response, AttemptsCount)" +
                                         "VALUES ((SELECT UserID FROM Users WHERE Username = ?), ?, ?, ?);",
                                         (question_username, question, answer, 1))
                             mcq_db.commit()
                             mcq_db.close()
-                            question_text = options[-1]
-                            options.pop()
-                            random.seed(question_username)
-                            random.shuffle(options)
-                            return render_template("incorrect.html", question=question,
+                            return render_template("correct.html", question=question,
                                                    question_text=question_text, option1=options[0],
                                                    option2=options[1], option3=options[2],
-                                                   option4=options[3], u_name=question_username)
-                        else:  # user answered the option before
-                            cur.execute("UPDATE Attempt " +
-                                        "SET AttemptsCount = (AttemptsCount + 1)" +
-                                        "WHERE UserID = (SELECT UserID FROM Users WHERE Username = ?) " +
-                                        "AND QuestionID = ? " +
-                                        "AND Response = ?;",
-                                        (question_username, question, answer))
-                            mcq_db.commit()
-                            mcq_db.close()
-                            question_text = options[-1]
-                            options.pop()
-                            random.seed(question_username)
-                            random.shuffle(options)
-                            return render_template("incorrect.html", question=question,
-                                                   question_text=question_text, option1=options[0],
-                                                   option2=options[1], option3=options[2],
-                                                   option4=options[3], u_name=question_username)
-                    else:  # ding ding ding!
-                        question_text = options[-1]
-                        options.pop()
-                        random.seed(question_username)
-                        random.shuffle(options)
-                        cur.execute("INSERT INTO Attempt (UserID, QuestionID, Response, AttemptsCount)" +
-                                    "VALUES ((SELECT UserID FROM Users WHERE Username = ?), ?, ?, ?);",
-                                    (question_username, question, answer, 1))
-                        mcq_db.commit()
-                        mcq_db.close()
-                        return render_template("correct.html", question=question,
-                                               question_text=question_text, option1=options[0],
-                                               option2=options[1], option3=options[2],
-                                               option4=options[3], u_name=question_username,
-                                               option_chosen=answer)
+                                                   option4=options[3], u_name=question_username,
+                                                   option_chosen=answer)
 
 
 @app.route('/leaderboard', methods=['GET', 'POST'])
 def leaderboard():
-    mcq_db = sqlite3.connect('mcq.db')
+    mcq_db = sqlite3.connect('mysite/mcq.db')
     cur = mcq_db.cursor()
     cur.execute("""select Users.Username, SUM(Attempt.AttemptsCount) from Attempt 
                    LEFT JOIN Questions 
