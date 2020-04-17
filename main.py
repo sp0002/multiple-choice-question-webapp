@@ -7,7 +7,7 @@ import operator
 app = Flask(__name__)
 
 # get some values and cache it
-questions_db = sqlite3.connect('mysite/mcq.db')
+questions_db = sqlite3.connect('mcq.db')
 cursor = questions_db.cursor()
 cursor.execute("SELECT COUNT(*) FROM Questions;")
 number_of_questions = cursor.fetchone()[0]
@@ -27,7 +27,7 @@ def login():
     if not username:  # not sent from main page
         return redirect(url_for('main'))
     else:  # typed a username
-        mcq_db = sqlite3.connect('mysite/mcq.db')
+        mcq_db = sqlite3.connect('mcq.db')
         cur = mcq_db.cursor()
         cur.execute("SELECT 1 FROM Attempt " +
                     "WHERE UserID = " +
@@ -55,7 +55,7 @@ def mcq():
     question = request.form.get('question', None)
     answer = request.form.get('answer', None)
     if not question:  # sent from confirm
-        mcq_db = sqlite3.connect('mysite/mcq.db')
+        mcq_db = sqlite3.connect('mcq.db')
         cur = mcq_db.cursor()
         # get number of questions user has answered correctly
         cur.execute("""select COUNT(*) from Attempt LEFT JOIN Questions 
@@ -86,7 +86,7 @@ def mcq():
         mcq_db.close()
         question_text = options[-1]
         options.pop()
-        random.seed(question_username)
+        random.seed(question_username + question_text + str(question))
         random.shuffle(options)
         mcq_db.close()
         return render_template("question.html", question=question,
@@ -94,14 +94,14 @@ def mcq():
                                option2=options[1], option3=options[2],
                                option4=options[3], u_name=question_username)
     elif not answer:  # answer somehow not in form data?
-        mcq_db = sqlite3.connect('mysite/mcq.db')
+        mcq_db = sqlite3.connect('mcq.db')
         cur = mcq_db.cursor()
         cur.execute("SELECT Answer, WrongAnswer1, WrongAnswer2, WrongAnswer3, QuestionToAsk " +
                     "FROM Questions WHERE QuestionID = ?;", (question,))
         options = list(cur.fetchone())
         question_text = options[-1]
         options.pop()
-        random.seed(question_username)
+        random.seed(question_username + question_text + str(question))
         random.shuffle(options)
         mcq_db.close()
         return render_template("question.html", question=question,
@@ -115,7 +115,7 @@ def mcq():
         except ValueError:
             return redirect(url_for('main'))  # question number not found? serve index.html
         else:
-            mcq_db = sqlite3.connect('mysite/mcq.db')
+            mcq_db = sqlite3.connect('mcq.db')
             cur = mcq_db.cursor()
             cur.execute("SELECT Answer, WrongAnswer1, WrongAnswer2, WrongAnswer3, QuestionToAsk " +
                         "FROM Questions WHERE QuestionID = ?;", (question,))
@@ -123,7 +123,7 @@ def mcq():
             question_text = options[-1]
             correct_answer = options[0]
             options.pop()
-            random.seed(question_username)
+            random.seed(question_username + question_text + str(question))
             random.shuffle(options)
             if answer not in options:  # bogus answer? ask question again
                 mcq_db.close()
@@ -182,15 +182,15 @@ def mcq():
                             mcq_db.commit()
                             mcq_db.close()
                             return render_template("correct.html", question=question,
-                                                   question_text=question_text, option1=options[0],
-                                                   option2=options[1], option3=options[2],
+                                                           question_text=question_text, option1=options[0],
+                                                           option2=options[1], option3=options[2],
                                                    option4=options[3], u_name=question_username,
                                                    option_chosen=answer)
 
 
 @app.route('/leaderboard', methods=['GET', 'POST'])
 def leaderboard():
-    mcq_db = sqlite3.connect('mysite/mcq.db')
+    mcq_db = sqlite3.connect('mcq.db')
     cur = mcq_db.cursor()
     cur.execute("""select Users.Username, SUM(Attempt.AttemptsCount) from Attempt 
                    LEFT JOIN Questions 
