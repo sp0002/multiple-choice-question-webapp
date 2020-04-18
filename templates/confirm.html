@@ -3,23 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCQ Quiz</title>
-    <style>
-        body{
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Muli&family=Work+Sans&display=swap" rel="stylesheet">
+    <title>MCQ Quiz - conformation</title>
 </head>
 <body>
-<form method="post" action="/questions">
-    {% if new_user %}
-        <p>Username {{ u_name }} has not attempted any questions.</p>
-    {% else %}
-        <p>Username {{ u_name }} has attempted one or more questions.</p>
-    {% endif %}
-    Use {{ u_name }} as username? <br/>
-    <input type="hidden" name="question_username" value="{{ u_name }}">
-    <input type="submit">
-</form>
+    <div id="top">
+        <a id="home" href="/">Home</a>
+        <a id="leaderboard" href="/leaderboard">Leaderboard</a>
+    </div>
+    <div id="content">
+        <form method="post" action="/questions">
+            {% if new_user %}
+                <p>Username {{ u_name }} has not attempted any questions.</p>
+            {% else %}
+                <p>Username {{ u_name }} has attempted one or more questions.</p>
+            {% endif %}
+            Use {{ u_name }} as username? <br/>
+            <input type="hidden" name="question_username" value="{{ u_name }}">
+            <button class="form-button-down" type="submit">Yes</button>
+        </form>
+        <a href="/"><button type="button">No</button></a>
+    </div>
 </body>
 </html>

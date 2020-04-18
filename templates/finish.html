@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Muli&family=Work+Sans&display=swap" rel="stylesheet">
+    <title>MCQ Quiz - finisher!</title>
+</head>
+<body>
+    <div id="top">
+        <a id="home" href="/">Home</a>
+        <a id="leaderboard" href="/leaderboard">Leaderboard</a>
+    </div>
+    <div id="content">
+        <p>Looks like {{ u_name }} has completed all {{ number_of_questions }} questions!</p>
+        <p>Congratulations!</p>
+        <p>Check back later to see if more questions are added.</p>
+        <p id="leaderboard_text">You might want to check out the
+        <form action="/leaderboard" method="post">
+            <input type="hidden" name="question_username" value="{{ u_name }}">
+            <button type="submit" id="leaderboard_button">leaderboard</button>
+        </form>.
+        </p>
+        <p><a href="/">You could also do the quiz again using another username!</a></p>
+    </div>
+</body>
+</html>

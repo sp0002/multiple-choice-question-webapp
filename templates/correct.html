@@ -3,48 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Muli&family=Work+Sans&display=swap" rel="stylesheet">
     <title>MCQ Quiz - Correct</title>
-    <style>
-        body{
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
-<p>Hi {{ u_name }}, here is your question.</p>
-<form method="post" action="/questions">
-    <input type="hidden" name="question_username" value="{{ u_name }}">
-    <p>{{ question_text }}</p>
-    {% if option_chosen == option1 %}
-        <input type="radio" name="answer" id="option1" value="{{ option1 }}" disabled checked>
-        <label for="option1">{{ option1 }}</label><br/><br/>
-    {% else %}
-        <input type="radio" name="answer" id="option1" value="{{ option1 }}" disabled>
-        <label for="option1">{{ option1 }}</label><br/><br/>
-    {% endif %}
-    {% if option_chosen == option2 %}
-        <input type="radio" name="answer" id="option2" value="{{ option2 }}" disabled checked>
-        <label for="option2">{{ option2 }}</label><br/><br/>
-    {% else %}
-        <input type="radio" name="answer" id="option2" value="{{ option2 }}" disabled>
-        <label for="option2">{{ option2 }}</label><br/><br/>
-    {% endif %}
-    {% if option_chosen == option3 %}
-        <input type="radio" name="answer" id="option3" value="{{ option3 }}" disabled checked>
-        <label for="option3">{{ option3 }}</label><br/><br/>
-    {% else %}
-        <input type="radio" name="answer" id="option3" value="{{ option3 }}" disabled>
-        <label for="option3">{{ option3 }}</label><br/><br/>
-    {% endif %}
-    {% if option_chosen == option4 %}
-        <input type="radio" name="answer" id="option4" value="{{ option4 }}" disabled checked>
-        <label for="option4">{{ option4 }}</label><br/><br/>
-    {% else %}
-        <input type="radio" name="answer" id="option4" value="{{ option4 }}" disabled>
-        <label for="option4">{{ option4 }}</label><br/><br/>
-    {% endif %}
-    <input type="submit">
-</form>
-<p>YAY! You are  C O R R E C T  !!</p>
+    <div id="top">
+        <a id="home" href="/">Home</a>
+        <a id="leaderboard" href="/leaderboard">Leaderboard</a>
+    </div>
+    <div id="content">
+        <p>Hi {{ u_name }}, here is your question.</p>
+        <form method="post" action="/questions">
+            <input type="hidden" name="question_username" value="{{ u_name }}">
+            <p id="question">{{ question_text }}</p>
+            {% if option_chosen == option1 %}
+                <input type="radio" name="answer" id="option1" value="{{ option1 }}" disabled checked>
+                <label for="option1" class="correct_option">{{ option1 }}</label><br/><br/>
+            {% else %}
+                <input type="radio" name="answer" id="option1" value="{{ option1 }}" disabled>
+                <label for="option1">{{ option1 }}</label><br/><br/>
+            {% endif %}
+            {% if option_chosen == option2 %}
+                <input type="radio" name="answer" id="option2" value="{{ option2 }}" disabled checked>
+                <label for="option2" class="correct_option">{{ option2 }}</label><br/><br/>
+            {% else %}
+                <input type="radio" name="answer" id="option2" value="{{ option2 }}" disabled>
+                <label for="option2">{{ option2 }}</label><br/><br/>
+            {% endif %}
+            {% if option_chosen == option3 %}
+                <input type="radio" name="answer" id="option3" value="{{ option3 }}" disabled checked>
+                <label for="option3" class="correct_option">{{ option3 }}</label><br/><br/>
+            {% else %}
+                <input type="radio" name="answer" id="option3" value="{{ option3 }}" disabled>
+                <label for="option3">{{ option3 }}</label><br/><br/>
+            {% endif %}
+            {% if option_chosen == option4 %}
+                <input type="radio" name="answer" id="option4" value="{{ option4 }}" disabled checked>
+                <label for="option4" class="correct_option">{{ option4 }}</label><br/><br/>
+            {% else %}
+                <input type="radio" name="answer" id="option4" value="{{ option4 }}" disabled>
+                <label for="option4">{{ option4 }}</label><br/><br/>
+            {% endif %}
+            <input type="submit">
+        </form>
+        <p>YAY! You are  C O R R E C T  !!</p>
+    </div>
 </body>
 </html>

@@ -3,21 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Muli&family=Work+Sans&display=swap" rel="stylesheet">
     <title>MCQ Quiz</title>
-    <style>
-        body{
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
-    <form method="post" action="/confirm">
-        Put in a username: <br/>
-        <input name="login_username">
-        <input type="submit">
-    </form>
-    <p>How does this work?</p>
-    <p>There is no login, enter a username and check if the username has attempted any questions before.</p>
-    <p>When you return to this web page, use the same username.</p>
+    <div id="top">
+        <a id="home" href="/">Home</a>
+        <a id="leaderboard" href="/leaderboard">Leaderboard</a>
+    </div>
+    <div id="content">
+        <p>Put in a username:</p>
+        <form method="post" action="/confirm">
+            <input name="login_username">
+            <input type="submit">
+        </form>
+        <p>How does this work?</p>
+        <p>There is no login. Enter a username and check if the username has attempted any questions before.</p>
+        <p>If there are attempts and you have not answered any questions, someone else may have used the username.</p>
+        <br/>
+        <p>It is recommended that you do not attempt the quiz on a username someone else has attempted.</p>
+        <br/>
+        <p>When you return to this web page, use the same username to continue with your progress.</p>
+        <p>There is no time limit! Take as long as you want, getting a question correct is better.</p>
+        <br/>
+        <p>No login means on cookies used, no personal data/information collected. Hooyah. :)</p>
+        <p>Maybe there is, but not implemented by me. Not that I know of any.</p>
+    </div>
 </body>
 </html>

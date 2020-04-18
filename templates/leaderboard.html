@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Muli&family=Work+Sans&display=swap" rel="stylesheet">
+    <title>MCQ Quiz - leaderboard</title>
+</head>
+<body>
+    <div id="top">
+        <a id="home" href="/">Home</a>
+        <a id="leaderboard" href="/leaderboard">Leaderboard</a>
+    </div>
+    <div id="content">
+        <ul>
+            {% for i in ranking %}
+                {% if i[2] == username %}
+                    <p><b>User {{ i[2] }} has {{ i[0] }} correct attempts and {{ i[1] }} wrong attempts.</b></p>
+                {% else %}
+                <p>User {{ i[2] }} has {{ i[0] }} correct attempts and {{ i[1] }} wrong attempts.</p>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

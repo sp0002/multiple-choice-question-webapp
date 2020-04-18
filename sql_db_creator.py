@@ -20,7 +20,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS "Attempt" (
                 "Response"	TEXT NOT NULL,
                 "AttemptsCount" INTEGER NOT NULL,
                 FOREIGN KEY("UserID") REFERENCES "Users"("UserID"),
-                PRIMARY KEY("UserID","QuestionID"),
+                PRIMARY KEY("UserID","QuestionID", "Response"),
                 FOREIGN KEY("QuestionID") REFERENCES "Questions"("QuestionID")
             );''')
 questions_db.commit()
