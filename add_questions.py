@@ -127,15 +127,70 @@ cursor.execute('''INSERT INTO Questions
                "Python used a type of variable copying called linked copy, so the two variables are linked."
                );''')
 
+# question 11
+cursor.execute('''INSERT INTO Questions
+                ( "QuestionToAsk", "Answer", "WrongAnswer1", "WrongAnswer2", "WrongAnswer3")
+                VALUES (
+                "A stack data structure can be implemented using:",
+                "linked list or array",
+                "random number generator",
+                "SQL right middle join",
+                "merge sort"
+                );''')
+
+# question 12
+cursor.execute('''INSERT INTO Questions
+                ( "QuestionToAsk", "Answer", "WrongAnswer1", "WrongAnswer2", "WrongAnswer3")
+                VALUES (
+                "How do you find the letter 6 positions after 'B' in python?",
+                "chr(ord('B') + 6)",
+                "chr(ASCII('B') + 6)",
+                "'B' + 6",
+                "'B' >> 6"
+                );''')
+
+# question 13
+cursor.execute('''INSERT INTO Questions
+                ( "QuestionToAsk", "Answer", "WrongAnswer1", "WrongAnswer2", "WrongAnswer3")
+                VALUES (
+                "How do you run a python file in IDLE?",
+                "Click Run, then click Run Module.",
+                "Press Alt + F4",
+                "Wait 224 seconds after doing a change.",
+                "Press Ctrl/Cmd + S then press Ctrl/Cmd + r + u + n."
+                );''')
+
+# question 14
+cursor.execute('''INSERT INTO Questions
+                ( "QuestionToAsk", "Answer", "WrongAnswer1", "WrongAnswer2", "WrongAnswer3")
+                VALUES (
+                "What does i++ do?",
+                "Increment i by one after.",
+                "Wrong syntax.",
+                "Acts as a breakpoint for the code.",
+                "Boosts me."
+                );''')
+
+# question 15
+cursor.execute('''INSERT INTO Questions
+                ( "QuestionToAsk", "Answer", "WrongAnswer1", "WrongAnswer2", "WrongAnswer3")
+                VALUES (
+                "Which of the following is a NoSQL database?",
+                "MongoDB",
+                "MySQL",
+                "SQLite3",
+                "PostgreSQL"
+                );''')
+
 # question blank
 """cursor.execute('''INSERT INTO Questions
                 ( "QuestionToAsk", "Answer", "WrongAnswer1", "WrongAnswer2", "WrongAnswer3")
                 VALUES (
                 "question",
-                "",
-                "",
-                "",
-                ""
+                "answer",
+                "wrong1",
+                "wrong2",
+                "wrong3"
                 );''')"""
 questions_db.commit()
 questions_db.close()
