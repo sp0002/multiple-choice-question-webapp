@@ -212,7 +212,8 @@ def leaderboard():
                    GROUP BY Attempt.UserID
                    ORDER BY Users.Username;""")
     correct_attempts = cur.fetchall()
-    cur.execute("""select Username from Users;""")
+    cur.execute("""select Username from Users
+                   ORDER BY Username;""")
     users = cur.fetchall()
     mcq_db.close()
 
