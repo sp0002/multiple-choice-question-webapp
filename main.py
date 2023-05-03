@@ -211,11 +211,22 @@ def leaderboard():
                    WHERE Questions.QuestionID is not null 
                    GROUP BY Attempt.UserID
                    ORDER BY Users.Username;""")
-    answered_questions = cur.fetchall()
+    correct_attempts = cur.fetchall()
+    cur.execute("""select Username from Users;""")
+    users = cur.fetchall()
     mcq_db.close()
+
+    results = {}
+    for i in users:
+        results[i[0]] = [0, 0] #  [correct attempts, wrong attempts]
+    for i in correct_attempts:
+        results[i[0]][0] = i[1]
+    for i in wrong_attempts:
+        results[i[0]][1] = i[1]
+
     ranking = []
-    for i in range(len(answered_questions)):
-        ranking.append((answered_questions[i][1], wrong_attempts[i][1], answered_questions[i][0]))
+    for i in results.keys():
+        ranking.append((results[i][0], results[i][1], i))
     ranking = sorted(sorted(ranking, key=operator.itemgetter(1, 2)), key=operator.itemgetter(0), reverse=True)
     username = request.form.get('question_username', None)
     return render_template('leaderboard.html', ranking=ranking, username=username)
