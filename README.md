@@ -33,3 +33,8 @@ You should see a message ending with the likes of "Running on http://127.0.0.1:5
 Go to the link in your browser, and voilà! The web app is running!
 
 To close the web app go back to your terminal and press "Ctrl" and "C" at the same time.
+
+#
+## Upcoming
+- Revamp method of adding questions.
+- Allow multiple answers to one question.
